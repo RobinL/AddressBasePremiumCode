@@ -1,7 +1,17 @@
--- Enable PostGIS (includes raster)
+
 CREATE EXTENSION postgis;
--- Enable Topology
+
 CREATE EXTENSION postgis_topology;
+
+drop table if exists abp_blpu;
+drop table if exists abp_delivery_point;
+drop table if exists abp_lpi;
+drop table if exists abp_crossref;
+drop table if exists abp_classification;
+drop table if exists abp_street;
+drop table if exists abp_street_descriptor;
+drop table if exists abp_organisation;
+drop table if exists abp_successor;
 
 
 --BLPU
@@ -186,27 +196,19 @@ ENTRY_DATE DATE,
 SUCCESSOR BIGINT
 );
 
-delete from abp_blpu;
-delete from abp_delivery_point;
-delete from abp_lpi;
-delete from abp_crossref;
-delete from abp_classification;
-delete from abp_street;
-delete from abp_street_descriptor;
-delete from abp_organisation;
-delete from abp_successor;
+
 
 --Copy all the data into the tables
 
-COPY abp_blpu FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID21_BLPU_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_delivery_point FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID28_DPA_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_lpi FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID24_LPI_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_crossref FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID23_XREF_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_classification FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID32_Class_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_street FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID11_Street_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_street_descriptor FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID15_StreetDesc_Records.csv' DELIMITER ',' CSV HEADER ;
-COPY abp_organisation FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID31_Org_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_successor FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID30_Successor_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_blpu FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID21_BLPU_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_delivery_point FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID28_DPA_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_lpi FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID24_LPI_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_crossref FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID23_XREF_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_classification FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID32_Class_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_street FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID11_Street_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_street_descriptor FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID15_StreetDesc_Records.csv' DELIMITER ',' CSV HEADER ;
+COPY abp_organisation FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID31_Org_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_successor FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID30_Successor_Records.csv' DELIMITER ',' CSV HEADER;
 
 
 
@@ -246,32 +248,32 @@ CREATE INDEX idx_geom_blpu ON abp_blpu USING gist(geom);
 -- delivery point
 
 CREATE INDEX idx_dpa_postcode
-  ON abp_dpa
+  ON abp_delivery_point
   USING btree
   (postcode);
 
-CREATE INDEX idx_dpa_throughfare
-  ON abp_dpa
+CREATE INDEX idx_dpa_thoroughfare
+  ON abp_delivery_point
   USING btree
-  (throughfare_name);  
+  (thoroughfare_name);  
 
 CREATE INDEX idx_dpa_uprn
-  ON abp_dpa
+  ON abp_delivery_point
   USING btree
   (uprn);    
   
 CREATE INDEX idx_dpa_post_town
-  ON abp_dpa
+  ON abp_delivery_point
   USING btree
   (post_town);
   
 
 CREATE INDEX idx_dpa_organisation
-  ON abp_dpa
+  ON abp_delivery_point
   USING btree
   (organisation_name);  
 
-ALTER TABLE abp_dpa ADD PRIMARY KEY (uprn);  
+ALTER TABLE abp_delivery_point ADD PRIMARY KEY (uprn);  
 
 -- LPI
 
@@ -301,21 +303,21 @@ ALTER TABLE abp_lpi ADD PRIMARY KEY (lpi_key);
 -- cross_reference
 
 CREATE INDEX idx_xref_uprn
-  ON abp_xref
+  ON abp_crossref
   USING btree
   (uprn); 
 
 CREATE INDEX idx_xref_source
-  ON abp_xref
+  ON abp_crossref
   USING btree
   (source); 
   
 CREATE INDEX idx_xref_cross_reference
-  ON abp_xref
+  ON abp_crossref
   USING btree
   (cross_reference); 
 
-ALTER TABLE abp_xref ADD PRIMARY KEY (xref_key); 
+ALTER TABLE abp_crossref ADD PRIMARY KEY (xref_key); 
 
 
 
@@ -361,10 +363,10 @@ CREATE INDEX idx_street_descriptor_locality_name
   USING btree
   (locality_name); 
 
-CREATE INDEX idx_street_description_street_descriptor
+CREATE INDEX idx_street_description_street_description
   ON abp_street_descriptor
   USING btree
-  (street_descriptor); 
+  (street_description); 
   
 ALTER TABLE abp_street_descriptor ADD PRIMARY KEY (usrn); --NOT UNIQUE;
 
