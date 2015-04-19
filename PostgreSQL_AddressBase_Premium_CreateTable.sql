@@ -1,4 +1,7 @@
-
+-- Enable PostGIS (includes raster)
+CREATE EXTENSION postgis;
+-- Enable Topology
+CREATE EXTENSION postgis_topology;
 
 
 --BLPU
@@ -183,6 +186,15 @@ ENTRY_DATE DATE,
 SUCCESSOR BIGINT
 );
 
+delete from abp_blpu;
+delete from abp_delivery_point;
+delete from abp_lpi;
+delete from abp_crossref;
+delete from abp_classification;
+delete from abp_street;
+delete from abp_street_descriptor;
+delete from abp_organisation;
+delete from abp_successor;
 
 --Copy all the data into the tables
 
@@ -196,15 +208,6 @@ COPY abp_street_descriptor FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID15_St
 COPY abp_organisation FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID31_Org_Records.csv' DELIMITER ',' CSV HEADER;
 COPY abp_successor FROM 'F:/Shapefiles/ab_premium/processed_csvs/ID30_Successor_Records.csv' DELIMITER ',' CSV HEADER;
 
-delete from abp_blpu;
-delete from abp_delivery_point;
-delete from abp_lpi;
-delete from abp_crossref;
-delete from abp_classification;
-delete from abp_street;
-delete from abp_street_descriptor;
-delete from abp_organisation;
-delete from abp_successor;
 
 
 --Indexes and primary keys
