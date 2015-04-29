@@ -14,6 +14,7 @@ drop table if exists abp_organisation;
 drop table if exists abp_successor;
 
 
+
 --BLPU
 CREATE TABLE abp_blpu (
 RECORD_IDENTIFIER SMALLINT,
@@ -200,15 +201,15 @@ SUCCESSOR BIGINT
 
 --Copy all the data into the tables
 
-COPY abp_blpu FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID21_BLPU_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_delivery_point FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID28_DPA_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_lpi FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID24_LPI_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_crossref FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID23_XREF_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_classification FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID32_Class_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_street FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID11_Street_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_street_descriptor FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID15_StreetDesc_Records.csv' DELIMITER ',' CSV HEADER ;
-COPY abp_organisation FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID31_Org_Records.csv' DELIMITER ',' CSV HEADER;
-COPY abp_successor FROM 'F:\Shapefiles\addressbase\lotsoflondon\processed\ID30_Successor_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_blpu FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID21_BLPU_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_delivery_point FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID28_DPA_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_lpi FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID24_LPI_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_crossref FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID23_XREF_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_classification FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID32_Class_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_street FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID11_Street_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_street_descriptor FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID15_StreetDesc_Records.csv' DELIMITER ',' CSV HEADER ;
+COPY abp_organisation FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID31_Org_Records.csv' DELIMITER ',' CSV HEADER;
+COPY abp_successor FROM 'F:\Shapefiles\ab_premium\processed_csvs\ID30_Successor_Records.csv' DELIMITER ',' CSV HEADER;
 
 
 
@@ -388,3 +389,5 @@ CREATE INDEX idx_organisation_uprn
  ALTER TABLE abp_organisation ADD PRIMARY KEY (org_key); 
  
  ALTER TABLE abp_organisation SET WITH OIDS;
+
+
