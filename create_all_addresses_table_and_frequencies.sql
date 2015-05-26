@@ -1,24 +1,15 @@
 
 
-drop table if exists abp_useful_gb;
+drop table if exists geographic_addresses;
 
-CREATE TABLE abp_useful_gb AS
+CREATE TABLE geographic_addresses AS
 
 SELECT  
-b.arc_id,
-b.uprn,
-b.postal_address,
-b.logical_status,
-c.classification_code,
-o.organisation,
-l.pao_text, l.pao_start_number, l.pao_start_suffix, l.pao_end_number, l.pao_end_suffix,
-l.sao_text, l.sao_start_number, l.sao_start_suffix, l.sao_end_number, l.sao_end_suffix,
-s.street_description,
-s.locality_name,
-s.town_name,
-b.postcode_locator,
---attribution from "Xref" table
-x.al2_source, x.al2_crossreference, x.topo_source, x.topo_cross_reference,
+b.uprn as uprn,
+b.postcode_locator as postcode,
+b.geom as geom,
+
+
 /*
 Concatenate a single GEOGRAPHIC address line label
 
@@ -81,7 +72,7 @@ else l.pao_end_number::varchar(4) end
 ||case when s.town_name is not null then s.town_name||', ' else '' end
 --Postcode----------------------------------------------------------------------------------------------------------------------------------------
 ||case when b.postcode_locator is not null then b.postcode_locator else '' end
-AS geo_single_address_label,
+AS full_address,
 b.geom
 
  
@@ -89,38 +80,81 @@ FROM
 abp_street_descriptor AS s, abp_classification as c,
 abp_lpi as l full outer join abp_organisation AS o on (l.uprn = o.uprn),
 abp_blpu AS b
---GET AddressLayer2 and TOPO attributes from xRef table onto a single line i.e. per UPRN feature
---We are using a left outer join, in order to pull ALL uprns, frmo BLPU table. I.e. so that all uprns, even those without TOID references, are included
-LEFT OUTER JOIN
-(SELECT al2.uprn, al2.al2_source, al2.al2_crossreference, topo.topo_source, topo.topo_cross_reference
-FROM
-  (SELECT uprn, source AS al2_source, cross_reference AS al2_crossreference FROM abp_crossref WHERE source = '7666MA') AS al2,
-  (SELECT uprn, source AS topo_source, cross_reference AS topo_cross_reference FROM abp_crossref WHERE source = '7666MT') AS topo
-  WHERE al2.uprn = topo.uprn) AS x
-ON (b.uprn = x.uprn)
+
 
 --join tables
 WHERE b.uprn = l.uprn
 AND l.usrn = s.usrn
-AND b.uprn = c.uprn;
+AND b.uprn = c.uprn
+and postal_address != "N" ;
 
 
-CREATE INDEX idx_abp_useful_gb_postcode
-  ON abp_useful_gb
+
+drop table if exists delivery_addresses;
+create table delivery_addresses as 
+SELECT
+d.uprn as uprn,
+postcode,
+geom,
+(
+ CASE WHEN department_name IS NOT NULL THEN department_name || ', ' ELSE '' END
+ || CASE WHEN organisation_name IS NOT NULL THEN organisation_name || ', ' ELSE '' END
+ || CASE WHEN sub_building_name IS NOT NULL THEN sub_building_name || ', ' ELSE '' END
+ || CASE WHEN building_name IS NOT NULL THEN building_name || ', ' ELSE '' END
+ || CASE WHEN building_number IS NOT NULL THEN building_number || ' ' ELSE '' END
+ || CASE WHEN rm_po_box_number IS NOT NULL THEN 'PO BOX ' || rm_po_box_number || ', ' ELSE '' END
+ || CASE WHEN dependent_thoroughfare_name IS NOT NULL THEN dependent_thoroughfare_name || ', ' ELSE '' END
+ || CASE WHEN thoroughfare_name IS NOT NULL THEN thoroughfare_name || ', ' ELSE '' END
+ || CASE WHEN double_dependent_locality IS NOT NULL THEN double_dependent_locality || ', ' ELSE '' END
+ || CASE WHEN dependent_locality IS NOT NULL THEN dependent_locality  || ', ' ELSE '' END
+ || CASE WHEN post_town IS NOT NULL THEN post_town || ', ' ELSE '' END
+ || postcode
+) AS full_address
+FROM abp_delivery_point as d
+left join abp_blpu as b
+on d.uprn=b.uprn;
+
+
+
+
+drop table if exists all_addresses;
+create table all_addresses as
+select * from geographic_addresses
+--Note we use union because this will remove duplicate rows.  union all would keep the dupes
+union
+select * from delivery_addresses;
+
+CREATE INDEX idx_all_addresses_postcode
+  ON all_addresses
   USING btree
-  (postcode_locator);  
+  (postcode);  
 
-CREATE INDEX idx_abp_useful_gb_uprn
-  ON abp_useful_gb
+CREATE INDEX idx_all_addresses_uprn
+  ON all_addresses
   USING btree
   (uprn); 
 
-CREATE INDEX idx_abp_useful_gb_geom
-  ON abp_useful_gb
+CREATE INDEX idx_all_addresses_geom
+  ON all_addresses
   USING gist
   (geom); 
 
-CREATE INDEX idx_fts_address ON abp_useful_gb 
-USING gin(to_tsvector('english', geo_single_address_label));
+CREATE INDEX idx_all_addresses_fts_address ON all_addresses 
+USING gin(to_tsvector('english', full_address));
 
- 
+
+
+
+drop table if exists term_frequencies;
+create table term_frequencies as
+select word, 
+count(*) as occurrences,
+1.0000 as freq from 
+(select regexp_split_to_table(upper(full_address), '[^\w]') as word from all_addresses) as t
+group by word
+order by count(*) desc;
+
+update term_frequencies 
+  set freq = occurrences/select(sum(occurrences) from term_frequencies);
+
+
