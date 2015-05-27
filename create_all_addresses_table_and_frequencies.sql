@@ -16,17 +16,17 @@ Concatenate a single GEOGRAPHIC address line label
 This code takes into account all possible combinations os pao/sao numbers and suffixes
 */
 case
-when o.organisation is not null then o.organisation||', ' else '' end
+when o.organisation is not null then o.organisation||' ' else '' end
 --Secondary Addressable Information-------------------------------------------------------------------------------------------------------
-||case when l.sao_text is not null then l.sao_text||', ' else '' end
+||case when l.sao_text is not null then l.sao_text||' ' else '' end
 --case statement for different combinations of the sao start numbers (e.g. if no sao start suffix)
 ||case
 when l.sao_start_number is not null and l.sao_start_suffix is null and l.sao_end_number is null
-then l.sao_start_number::varchar(4)||', '
+then l.sao_start_number::varchar(4)||' '
 when l.sao_start_number is null then '' else l.sao_start_number::varchar(4)||'' end
 --case statement for different combinations of the sao start suffixes (e.g. if no sao end number)
 ||case
-when l.sao_start_suffix is not null and l.sao_end_number is null then l.sao_start_suffix||', '
+when l.sao_start_suffix is not null and l.sao_end_number is null then l.sao_start_suffix||' '
 when l.sao_start_suffix is not null and l.sao_end_number is not null then l.sao_start_suffix else '' end
 --Add a '-' between the start and end of the secondary address (e.g. only when sao start and sao end)
 ||case
@@ -34,21 +34,21 @@ when l.sao_end_suffix is not null and l.sao_end_number is not null then '-'
 when l.sao_start_number is not null and l.sao_end_number is not null then '-'else '' end
 --case statement for different combinations of the sao end numbers and sao end suffixes
 ||case
-when l.sao_end_number is not null and l.sao_end_suffix is null then l.sao_end_number::varchar(4)||', '
+when l.sao_end_number is not null and l.sao_end_suffix is null then l.sao_end_number::varchar(4)||' '
 when l.sao_end_number is null then '' else l.sao_end_number::varchar(4) end
 --pao end suffix
-||case when l.sao_end_suffix is not null then l.sao_end_suffix||', ' else '' end
+||case when l.sao_end_suffix is not null then l.sao_end_suffix||' ' else '' end
 --Primary Addressable Information----------------------------------------------------------------------------------------------------------
-||case when l.pao_text is not null then l.pao_text||', ' else '' end
+||case when l.pao_text is not null then l.pao_text||' ' else '' end
 --case statement for different combinations of the pao start numbers (e.g. if no pao start suffix)
 ||case
 when l.pao_start_number is not null and l.pao_start_suffix is null and l.pao_end_number is null
-then l.pao_start_number::varchar(4)||', '
+then l.pao_start_number::varchar(4)||' '
 when l.pao_start_number is null then ''
 else l.pao_start_number::varchar(4)||'' end
 --case statement for different combinations of the pao start suffixes (e.g. if no pao end number)
 ||case
-when l.pao_start_suffix is not null and l.pao_end_number is null then l.pao_start_suffix||', '
+when l.pao_start_suffix is not null and l.pao_end_number is null then l.pao_start_suffix||' '
 when l.pao_start_suffix is not null and l.pao_end_number is not null then l.pao_start_suffix
 else '' end
 --Add a '-' between the start and end of the primary address (e.g. only when pao start and pao end)
@@ -58,22 +58,21 @@ when l.pao_start_number is not null and l.pao_end_number is not null then '-'
 else '' end
 --case statement for different combinations of the pao end numbers and pao end suffixes
 ||case
-when l.pao_end_number is not null and l.pao_end_suffix is null then l.pao_end_number::varchar(4)||', '
+when l.pao_end_number is not null and l.pao_end_suffix is null then l.pao_end_number::varchar(4)||' '
 when l.pao_end_number is null then ''
 else l.pao_end_number::varchar(4) end
 --pao end suffix
-||case when l.pao_end_suffix is not null then l.pao_end_suffix||', ' else '' end
+||case when l.pao_end_suffix is not null then l.pao_end_suffix||' ' else '' end
 --Street Information----------------------------------------------------------------------------------------------------------------------------
-||case when s.street_description is not null then s.street_description||', ' else '' end
+||case when s.street_description is not null then s.street_description||' ' else '' end
 --Locality------------------------------------------------------------------------------------------------------------------------------------------
-||case when s.locality_name is not null then s.locality_name||', ' else '' end
+||case when s.locality_name is not null then s.locality_name||' ' else '' end
 
 --Town---------------------------------------------------------------------------------------------------------------------------------------------
-||case when s.town_name is not null then s.town_name||', ' else '' end
+||case when s.town_name is not null then s.town_name||' ' else '' end
 --Postcode----------------------------------------------------------------------------------------------------------------------------------------
 ||case when b.postcode_locator is not null then b.postcode_locator else '' end
-AS full_address,
-b.geom
+AS full_address
 
  
 FROM 
@@ -86,7 +85,7 @@ abp_blpu AS b
 WHERE b.uprn = l.uprn
 AND l.usrn = s.usrn
 AND b.uprn = c.uprn
-and postal_address != "N" ;
+and postal_address != 'N' ;
 
 
 
@@ -97,17 +96,17 @@ d.uprn as uprn,
 postcode,
 geom,
 (
- CASE WHEN department_name IS NOT NULL THEN department_name || ', ' ELSE '' END
- || CASE WHEN organisation_name IS NOT NULL THEN organisation_name || ', ' ELSE '' END
- || CASE WHEN sub_building_name IS NOT NULL THEN sub_building_name || ', ' ELSE '' END
- || CASE WHEN building_name IS NOT NULL THEN building_name || ', ' ELSE '' END
+ CASE WHEN department_name IS NOT NULL THEN department_name || ' ' ELSE '' END
+ || CASE WHEN organisation_name IS NOT NULL THEN organisation_name || ' ' ELSE '' END
+ || CASE WHEN sub_building_name IS NOT NULL THEN sub_building_name || ' ' ELSE '' END
+ || CASE WHEN building_name IS NOT NULL THEN building_name || ' ' ELSE '' END
  || CASE WHEN building_number IS NOT NULL THEN building_number || ' ' ELSE '' END
- || CASE WHEN rm_po_box_number IS NOT NULL THEN 'PO BOX ' || rm_po_box_number || ', ' ELSE '' END
- || CASE WHEN dependent_thoroughfare_name IS NOT NULL THEN dependent_thoroughfare_name || ', ' ELSE '' END
- || CASE WHEN thoroughfare_name IS NOT NULL THEN thoroughfare_name || ', ' ELSE '' END
- || CASE WHEN double_dependent_locality IS NOT NULL THEN double_dependent_locality || ', ' ELSE '' END
- || CASE WHEN dependent_locality IS NOT NULL THEN dependent_locality  || ', ' ELSE '' END
- || CASE WHEN post_town IS NOT NULL THEN post_town || ', ' ELSE '' END
+ || CASE WHEN rm_po_box_number IS NOT NULL THEN 'PO BOX ' || rm_po_box_number || ' ' ELSE '' END
+ || CASE WHEN dependent_thoroughfare_name IS NOT NULL THEN dependent_thoroughfare_name || ' ' ELSE '' END
+ || CASE WHEN thoroughfare_name IS NOT NULL THEN thoroughfare_name || ' ' ELSE '' END
+ || CASE WHEN double_dependent_locality IS NOT NULL THEN double_dependent_locality || ' ' ELSE '' END
+ || CASE WHEN dependent_locality IS NOT NULL THEN dependent_locality  || ' ' ELSE '' END
+ || CASE WHEN post_town IS NOT NULL THEN post_town || ' ' ELSE '' END
  || postcode
 ) AS full_address
 FROM abp_delivery_point as d
@@ -145,16 +144,20 @@ USING gin(to_tsvector('english', full_address));
 
 
 
-drop table if exists term_frequencies;
-create table term_frequencies as
+drop table if exists term_frequencies2;
+create table term_frequencies2 as
 select word, 
 count(*) as occurrences,
 1.0000 as freq from 
-(select regexp_split_to_table(upper(full_address), '[^\w]') as word from all_addresses) as t
+(select regexp_split_to_table(upper(full_address), '[^\w]+|\s+') as word from all_addresses) as t
+where word != ''
 group by word
 order by count(*) desc;
 
-update term_frequencies 
-  set freq = occurrences/select(sum(occurrences) from term_frequencies);
+update term_frequencies2 
+  set freq = occurrences/(select sum(occurrences) from term_frequencies2);
+
+
+
 
 
